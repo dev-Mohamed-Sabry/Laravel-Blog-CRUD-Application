@@ -57,19 +57,24 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $users = User::all(); //Collection Object
-
+        // dd($post);
         return view('posts.edit', ['post' => $post, 'users' => $users]);
     }
 
     public function update(Request $request, Post $post)
     {
         $validated = $request->validate([
-            Rule::unique('posts', 'title')->ignore($post->id),
+            'title' => [
+                'required',
+                'min:3',
+                'max:50',
+                Rule::unique('posts', 'title')->ignore($post->id),
+            ],
             'description' => ['required', 'min:8', 'max:255'],
             'user_id' => ['required', 'exists:users,id'],
         ]);
-        $post->update($validated);
 
+        $post->update($validated);
         return redirect()->route('posts.show', $post->id)->with('success', 'Post updated successfully');
     }
 
